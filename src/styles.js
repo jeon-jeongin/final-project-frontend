@@ -2,15 +2,21 @@ import { createGlobalStyle } from "styled-components";
 import reset from "styled-reset";
 
 export const lightTheme = {
-    accent: "#0095f6",
+    accent: "#4d88d8",
+    formErrorColor: "#ff5f4e",
+    noticeColor: "#8e8e8e",
     borderColor: "#dbdbdb",
-    fontColor: "#2c2c2c",
-    bgColor: "#fafafa"
+    fontColor: "#262626",
+    bgColor: "#fafafa",
 };
 
 export const darkTheme = {
+    accent: "#62A4EC",
+    formErrorColor: "#c4483b",
+    noticeColor: "#b0aeae",
+    borderColor: "#3a3b3d",
     fontColor: "#fafafa",
-    bgColor: "#2c2c2c"
+    bgColor: "#1e1f21"
 };
 
 export const GlobalStyles = createGlobalStyle`
@@ -25,7 +31,7 @@ export const GlobalStyles = createGlobalStyle`
         background-color: ${(props) => props.theme.bgColor};
         font-size: 14px;
         font-family:'Open Sans', sans-serif;
-        color: #262626;
+        color: ${(props) => props.theme.fontColor};
     }
     a{
         text-decoration: none;

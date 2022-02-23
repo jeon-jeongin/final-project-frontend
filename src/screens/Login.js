@@ -1,95 +1,113 @@
 import Logo from '../images/ourGoods.svg';
-import styled from "styled-components";
-import { Link } from 'react-router-dom';
+import routes from '../routes';
+import AuthLayout from '../components/auth/AuthLayout';
+import Button from '../components/auth/Button';
+import Input from '../components/auth/Input';
+import FormBox from '../components/auth/FormBox';
+import ButtomBox from '../components/auth/ButtomBox';
+import PageTitle from '../components/PageTitle';
+import { useForm } from 'react-hook-form';
+import FormError from '../components/auth/FormError';
+import { gql, useMutation } from '@apollo/client';
+import { logUserIn } from '../apollo';
+import { useLocation } from 'react-router-dom';
+import styled from 'styled-components';
 
 function Login() {
+    const location = useLocation();
+    console.log(location)
+    const { register, handleSubmit, errors, formState, getValues, setError, clearErrors } = useForm({
+        mode: "onChange",
+        defaultValues: {
+            username: location?.state?.username || "",
+            password: location?.state?.password || "",
+        }
+    });
+    const onCompleted = (data) => {
+        const {
+            login: { ok, error, token },
+        } = data;
+        if (!ok) {
+            return setError("result", {
+                message: error,
+            });
+        }
+        if (token) {
+            logUserIn(token);
+        }
+    };
+    const [login, { loading }] = useMutation(LOGIN_MUTATION, { onCompleted });
+    const onSubmitValid = (data) => {
+        if (loading) {
+            return;
+        }
+        const { username, password } = getValues();
+        login({
+            variables: { username, password },
+        });
+    };
+    const clearLoginError = () => {
+        clearErrors("result");
+    }
     return (
-        <Container>
-            <Wrapper>
-                <TopBox>
-                    <div>
-                        <img width="150px" height="40px" src={Logo} alt="굿즈 로고" />
-                    </div>
-                    <form>
-                        <Input type="text" placeholder="Username" />
-                        <Input type="password" placeholder="Password" />
-                        <Button type="submit" value="Log in" />
-                    </form>
-                </TopBox>
-                <ButtonBox>
-                    <span>계정이 없으신가요?</span>
-                    <Link to="/sign-up">Sign up</Link>
-                </ButtonBox>
-            </Wrapper>
-        </Container>
+        <AuthLayout>
+            <PageTitle title="Login" />
+            <FormBox>
+                <div>
+                    <img width="150px" height="40px" src={Logo} alt="굿즈 로고" />
+                </div>
+                <Notification>{location?.state?.message}</Notification>
+                <form onSubmit={handleSubmit(onSubmitValid)}>
+                    <Input
+                        ref={register({
+                            required: "사용자 아이디는 필수입니다.",
+                            minLength: {
+                                value: 5,
+                                message: "아이디는 5글자를 초과해야합니다.",
+                            },
+                        })}
+                        onChange={clearLoginError}
+                        name="username"
+                        type="text"
+                        placeholder="Username"
+                        hasError={Boolean(errors?.username?.message)}
+                    />
+                    <FormError message={errors?.username?.message} />
+                    <Input
+                        ref={register({
+                            required: "비밀번호는 필수입니다.",
+                        })}
+                        onChange={clearLoginError}
+                        name="password"
+                        type="password"
+                        placeholder="Password"
+                        hasError={Boolean(errors?.password?.message)}
+                    />
+                    <FormError message={errors?.password?.message} />
+                    <Button
+                        type="submit"
+                        value={loading ? "Loading..." : "Log in"}
+                        disabled={!formState.isValid || loading} />
+                    <FormError message={errors?.result?.message} />
+                </form>
+            </FormBox>
+            <ButtomBox cta="계정이 없으신가요?" linkText="Sign up" link={routes.signUp} />
+        </AuthLayout>
     )
 }
 export default Login;
 
-const Container = styled.div`
-    display: flex;
-    height: 100vh;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-`;
-
-const Wrapper = styled.div`
-    max-width: 350px;
-    width: 100%;
-`;
-const WhiteBox = styled.div`
-    background-color: white;
-    border: 1px solid ${(props) => props.theme.borderColor};
-    width: 100%;
-`;
-
-const TopBox = styled(WhiteBox)`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    padding: 35px 40px 20px 40px;
-    margin-bottom: 10px;
-    form{
-        margin-top: 23px;
-        width: 100%;
-        display: flex;
-        justify-items: center;
-        align-items: center;
-        flex-direction: column;
+const LOGIN_MUTATION = gql`
+  mutation login($username: String!, $password: String!) {
+    login(username: $username, password: $password) {
+      ok
+      token
+      error
     }
-`;
-const Input = styled.input`
-    width: 100%;
-    padding: 7px;
-    margin-top: 5px;
-    background-color: #fafafa;
-    border-radius: 3px;
-    border: 0.5px solid ${(props) => props.theme.borderColor};
-    box-sizing:border-box;
-    &::placeholder{
-        font-size: 12px;
-    }
+  }
 `;
 
-const Button = styled.input`
-    border: none;
-    margin-top: 15px;
-    background-color: ${(props) => props.theme.accent};
-    color: white;
-    text-align: center;
-    padding: 8px 0px;
-    font-weight: 600;
-    width: 100%;
-`;
-
-const ButtonBox = styled(WhiteBox)`
-    padding: 20px 0px;
-    text-align: center;
-    a{
-        font-weight: 600;
-        margin-left: 5px;
-        color: ${(props) => props.theme.accent};
-    }
+const Notification = styled.div`
+  margin-top: 5px;
+  color: #4d88d8;
 `;
