@@ -15,7 +15,6 @@ import styled from 'styled-components';
 
 function Login() {
     const location = useLocation();
-    console.log(location)
     const { register, handleSubmit, errors, formState, getValues, setError, clearErrors } = useForm({
         mode: "onChange",
         defaultValues: {

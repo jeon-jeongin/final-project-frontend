@@ -11,4 +11,9 @@ export const FatLink = styled.span`
   color: ${(props) => props.theme.noticeColor};
 `;
 
+export const FatText = styled.span`
+  font-weight: 600;
+`;
+
+
 

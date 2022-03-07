@@ -6,7 +6,7 @@ import { darkModeVar, disableDarkMode, enableDarkMode } from "../../apollo";
 
 const Container = styled.div`
 display: flex;
-height: 100vh;
+height: 75vh;
 justify-content: center;
 align-items: center;
 flex-direction: column;
