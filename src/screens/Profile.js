@@ -1,14 +1,13 @@
 import { gql, useApolloClient, useMutation, useQuery } from "@apollo/client";
 import { faHeart, faComment } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../components/auth/Button";
 import PageTitle from "../components/PageTitle";
 import { FatText } from "../components/shared";
 import { PHOTO_FRAGMENT } from "../fragments";
 import useUser from "../hooks/useUser";
-
 
 function Profile() {
     const { username } = useParams();
@@ -96,7 +95,11 @@ function Profile() {
     const getButton = (seeProfile) => {
         const { isMe, isFollowing } = seeProfile;
         if (isMe) {
-            return <ProfileBtn>Edit Profile</ProfileBtn>
+            return (
+                <StyledLink to={`/users/${userData?.me?.username}/editProfile`}>
+                    <ProfileBtn>Edit Profile</ProfileBtn>
+                </StyledLink>
+            )
         }
         if (isFollowing) {
             return <ProfileBtn onClick={unfollowUser}>Unfollow</ProfileBtn>
@@ -207,7 +210,7 @@ const Avatar = styled.img`
   width: 160px;
   border-radius: 50%;
   margin-right: 150px;
-  background-color: #2c2c2c;
+  background-color: ${(props) => props.theme.fontColor};
 `;
 
 const Column = styled.div``;
@@ -283,6 +286,14 @@ const ProfileBtn = styled(Button).attrs({
     as: "span",
 })`
     margin-left: 10px;
+    margin-top: 0px;
+    font-size: 13px;
+    padding: 7px 15px;
+    cursor: pointer;
+`;
+
+const StyledLink = styled(Link)`
+    margin-left: -12px;
     margin-top: 0px;
     font-size: 13px;
     padding: 8px 15px;

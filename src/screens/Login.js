@@ -1,4 +1,5 @@
-import Logo from '../images/ourGoods.svg';
+import lightLogo from '../images/lightLogo.svg';
+import darkLogo from '../images/darkLogo.svg';
 import routes from '../routes';
 import AuthLayout from '../components/auth/AuthLayout';
 import Button from '../components/auth/Button';
@@ -8,12 +9,13 @@ import ButtomBox from '../components/auth/ButtomBox';
 import PageTitle from '../components/PageTitle';
 import { useForm } from 'react-hook-form';
 import FormError from '../components/auth/FormError';
-import { gql, useMutation } from '@apollo/client';
-import { logUserIn } from '../apollo';
+import { gql, useMutation, useReactiveVar } from '@apollo/client';
+import { darkModeVar, logUserIn } from '../apollo';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 function Login() {
+    const darkMode = useReactiveVar(darkModeVar);
     const location = useLocation();
     const { register, handleSubmit, errors, formState, getValues, setError, clearErrors } = useForm({
         mode: "onChange",
@@ -35,7 +37,9 @@ function Login() {
             logUserIn(token);
         }
     };
-    const [login, { loading }] = useMutation(LOGIN_MUTATION, { onCompleted });
+    const [login, { loading }] = useMutation(LOGIN_MUTATION, {
+        onCompleted,
+    });
     const onSubmitValid = (data) => {
         if (loading) {
             return;
@@ -53,7 +57,11 @@ function Login() {
             <PageTitle title="Login" />
             <FormBox>
                 <div>
-                    <img width="150px" height="40px" src={Logo} alt="굿즈 로고" />
+                    {
+                        darkMode ?
+                            (<img width="150px" height="30px" src={darkLogo} alt="굿즈 로고" />)
+                            : (<img width="150px" height="30px" src={lightLogo} alt="굿즈 로고" />)
+                    }
                 </div>
                 <Notification>{location?.state?.message}</Notification>
                 <form onSubmit={handleSubmit(onSubmitValid)}>

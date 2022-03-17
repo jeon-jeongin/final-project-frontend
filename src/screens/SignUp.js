@@ -1,4 +1,5 @@
-import Logo from '../images/ourGoods.svg';
+import lightLogo from '../images/lightLogo.svg';
+import darkLogo from '../images/darkLogo.svg';
 import routes from '../routes';
 import AuthLayout from '../components/auth/AuthLayout';
 import Button from '../components/auth/Button';
@@ -9,11 +10,13 @@ import styled from 'styled-components';
 import { FatLink } from '../components/shared';
 import PageTitle from '../components/PageTitle';
 import { useForm } from 'react-hook-form';
-import { gql, useMutation } from '@apollo/client';
+import { gql, useMutation, useReactiveVar } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 import FormError from '../components/auth/FormError';
+import { darkModeVar } from '../apollo';
 
 function SignUp() {
+    const darkMode = useReactiveVar(darkModeVar);
     const navigate = useNavigate()
     const { register, handleSubmit, errors, formState, getValues, setError, clearErrors } = useForm({
         mode: "onChange",
@@ -49,7 +52,11 @@ function SignUp() {
             <PageTitle title="Sign up" />
             <FormBox>
                 <HeaderContainer>
-                    <img width="150px" height="40px" src={Logo} alt="굿즈 로고" />
+                    {
+                        darkMode ?
+                            (<img width="150px" height="30px" src={darkLogo} alt="굿즈 로고" />)
+                            : (<img width="150px" height="30px" src={lightLogo} alt="굿즈 로고" />)
+                    }
                     <Subtitle>
                         Sign up to see photos and information from your friends.
                     </Subtitle>

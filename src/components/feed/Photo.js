@@ -1,16 +1,17 @@
 import { gql, useMutation } from "@apollo/client";
-import { faBookmark, faComment, faHeart, faPaperPlane } from "@fortawesome/free-regular-svg-icons";
-import { faHeart as SolidHeart } from "@fortawesome/free-solid-svg-icons";
+import { faComment, faHeart, faPaperPlane } from "@fortawesome/free-regular-svg-icons";
+import { faEllipsis, faHeart as SolidHeart } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import Avatar from "../Avatar";
 import { FatText } from "../shared";
 import Comments from "./Comments";
 
-function Photo({ id, user, file, isLiked, likes, caption, commentNumber, comments }) {
-
+function Photo({ id, user, file, isLiked, likes, caption, commentNumber, comments, isMine }) {
     const updateToggleLike = (cache, result) => {
         const {
             data: {
@@ -41,16 +42,120 @@ function Photo({ id, user, file, isLiked, likes, caption, commentNumber, comment
         },
         update: updateToggleLike
     });
+
+    const [feedmenu, setFeedMenu] = useState(false);
+
+    const onMenuClick = () => {
+        if (isMine) {
+            setFeedMenu(feedmenu => !feedmenu);
+        } else {
+            alert("사용자 게시물이 아닙니다.")
+        }
+    }
+
+    const updateDeletePhoto = (cache, result) => {
+        const {
+            data: {
+                deletePhoto: { ok },
+            },
+        } = result;
+        if (ok) {
+            cache.evict({ id: `Photo:${id}` });
+        }
+
+    };
+    const [deletePhotoMutation] = useMutation(DELETE_PHOTO_MUTATION, {
+        variables: {
+            id,
+        },
+        update: updateDeletePhoto,
+    });
+    const onDeleteClick = () => {
+        deletePhotoMutation();
+    };
+
+    const [input, setInput] = useState(false);
+
+    const { register, handleSubmit, setValue, getValues } = useForm();
+
+    const editPhotoUpdate = (cache, { data: { editComment } }) => {
+        const { caption } = getValues();
+        setValue("caption", "");
+        cache.writeFragment({
+            id: `Photo:${id}`,
+            fragment: gql`
+                fragment BSName on Photo {
+                    caption
+                }
+                `,
+            data: {
+                caption: caption
+            }
+        })
+        cache.modify({
+            id: cache.identify(Photo),
+            fields: {
+                payload(prev) {
+                    return [...prev, caption]
+                }
+
+            }
+        })
+
+    };
+    const [editPhotoMutation, { loading }] = useMutation(
+        EDIT_PHOTO_MUTATION,
+        {
+            update: editPhotoUpdate,
+        }
+    );
+
+    const onValid = (data) => {
+        const { caption } = data;
+        if (loading) {
+            return;
+        }
+        editPhotoMutation({
+            variables: {
+                id,
+                caption,
+            }
+        })
+    };
+
+    const onEditClick = () => {
+        setInput(input => !input);
+    }
+
     return (
         <PhotoContainer key={id}>
-            <PhotoHeader>
-                <Link to={`/users/${user.username}`}>
-                    <Avatar lg url={user.avatar} />
-                </Link>
-                <Link to={`/users/${user.username}`}>
-                    <Username>{user.username}</Username>
-                </Link>
-            </PhotoHeader>
+            <PhotoHeaders>
+                <PhotoHeader>
+                    <div>
+                        <Link to={`/users/${user.username}`}>
+                            <Avatar url={user.avatar} />
+                        </Link>
+                        <Link to={`/users/${user.username}`}>
+                            <Username>{user.username}</Username>
+                        </Link>
+                    </div>
+                </PhotoHeader>
+                <PhotoHeader>
+                    <MenuBar>
+                        <div>
+                            <Button onClick={onMenuClick}>
+                                <FontAwesomeIcon icon={faEllipsis} />
+                            </Button>
+                        </div>
+                        {feedmenu ? (
+                            <>
+                                <Button onClick={onEditClick}>수정하기</Button>
+                                <Button onClick={onDeleteClick}>삭제하기</Button>
+                            </>
+                        ) : null}
+                    </MenuBar>
+                </PhotoHeader>
+            </PhotoHeaders>
             <PhotoFile src={file} />
             <PhotoData>
                 <PhotoActions>
@@ -64,14 +169,23 @@ function Photo({ id, user, file, isLiked, likes, caption, commentNumber, comment
                             <FontAwesomeIcon icon={faComment} />
                         </PhotoAction>
                         <PhotoAction>
-                            <FontAwesomeIcon icon={faPaperPlane} />
+                            <Link to={`/rooms`}>
+                                <FontAwesomeIcon icon={faPaperPlane} />
+                            </Link>
                         </PhotoAction>
-                    </div>
-                    <div>
-                        <FontAwesomeIcon icon={faBookmark} />
                     </div>
                 </PhotoActions>
                 <Likes>{likes === 1 ? "1 like" : `${likes} likes`}</Likes>
+                <CommentEditContainers>
+                    {input ? (<form onSubmit={handleSubmit(onValid)}>
+                        <PostCommentInput
+                            name="caption"
+                            ref={register({ required: true })}
+                            type="text"
+                            placeholder="Edit a caption..."
+                        />
+                    </form>) : null}
+                </CommentEditContainers>
                 <Comments
                     photoId={id}
                     author={user.username}
@@ -79,10 +193,10 @@ function Photo({ id, user, file, isLiked, likes, caption, commentNumber, comment
                     commentNumber={commentNumber}
                     comments={comments}
                 />
+
             </PhotoData>
         </PhotoContainer>
     )
-
 }
 
 Photo.propTypes = {
@@ -108,6 +222,23 @@ const TOGGLE_LIKE_MUTATION = gql`
     }
 `;
 
+const DELETE_PHOTO_MUTATION = gql`
+  mutation deletePhoto($id: Int!) {
+    deletePhoto(id: $id) {
+      ok
+    }
+  }
+`;
+
+const EDIT_PHOTO_MUTATION = gql`
+  mutation editPhoto($id: Int!, $caption: String!) {
+    editPhoto(id: $id, caption: $caption) {
+      ok
+      error
+    }
+  }
+`;
+
 const PhotoContainer = styled.div`
     background-color: ${(props) => props.theme.bgColor};
     border-radius: 4px;
@@ -116,11 +247,32 @@ const PhotoContainer = styled.div`
     max-width: 615px;
     margin-left: 155px;
 `;
-const PhotoHeader = styled.div`
+const PhotoHeaders = styled.div`
     padding: 15px;
+    border-bottom: 1px solid rgb(239, 239, 239);
     display: flex;
     align-items: center;
-    border-bottom: 1px solid rgb(239, 239, 239);
+    justify-content: space-between;
+    div{
+        display: flex;
+        align-items: center;
+    }
+    svg{
+        font-size: 20px;
+        color: ${(props) => props.theme.fontColor};
+    }
+`;
+const PhotoHeader = styled.div``;
+
+const MenuBar = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
+
+const Button = styled.button`
+    background-color: inherit;
+    border: none;
+    color: ${(props) => props.theme.fontColor};
 `;
 
 const Username = styled(FatText)`
@@ -157,4 +309,15 @@ const PhotoAction = styled.div`
 const Likes = styled(FatText)`
     margin-top: 15px;
     display: block;
+`;
+
+const CommentEditContainers = styled.div`
+    margin: 10px 0px;
+`;
+
+const PostCommentInput = styled.input`
+  width: 100%;
+  &::placeholder {
+    font-size: 12px;
+  }
 `;

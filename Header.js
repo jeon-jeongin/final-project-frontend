@@ -1,35 +1,25 @@
-import lightLogo from '../images/lightLogo.svg';
-import darkLogo from '../images/darkLogo.svg';
+import Logo from '../images/ourGoods.svg';
 import { useReactiveVar } from "@apollo/client";
-import { darkModeVar, isLoggedInVar, logUserOut } from "../apollo";
+import { isLoggedInVar, logUserOut } from "../apollo";
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHouseChimney, faPlusSquare, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faHouseChimney, faSearch } from '@fortawesome/free-solid-svg-icons';
 import styled from 'styled-components';
 import routes from '../routes';
 import useUser from '../hooks/useUser';
 import Avatar from './Avatar';
 import DarkMode from './shared/DarkMode';
 import { useNavigate } from "react-router-dom";
-import { faPaperPlane } from '@fortawesome/free-regular-svg-icons';
-
 
 function Header() {
     const isLoggedIn = useReactiveVar(isLoggedInVar);
-    const darkMode = useReactiveVar(darkModeVar);
     const { data } = useUser();
-    const navigate = useNavigate();
+    const navigate = useNavigate()
     return (
         <SHeader>
             <Wrapper>
                 <Column>
-                    <Link to={routes.home}>
-                        {
-                            darkMode ?
-                                (<img width="150px" height="30px" src={darkLogo} alt="굿즈 로고" />)
-                                : (<img width="150px" height="30px" src={lightLogo} alt="굿즈 로고" />)
-                        }
-                    </Link>
+                    <img width="150px" height="40px" src={Logo} alt="굿즈 로고" />
                 </Column>
                 <DarkMode />
                 <Column>
@@ -38,16 +28,6 @@ function Header() {
                             <Icon>
                                 <Link to={routes.home}>
                                     <FontAwesomeIcon icon={faHouseChimney} size="lg" />
-                                </Link>
-                            </Icon>
-                            <Icon>
-                                <Link to={`/uploadFeed`}>
-                                    <FontAwesomeIcon icon={faPlusSquare} size="lg" />
-                                </Link>
-                            </Icon>
-                            <Icon>
-                                <Link to={`/rooms`}>
-                                    <FontAwesomeIcon icon={faPaperPlane} size="lg" />
                                 </Link>
                             </Icon>
                             <Icon>
@@ -64,7 +44,7 @@ function Header() {
                         </IconsContainer>
                     ) : (
                         <Link to={routes.home}>
-                            <Button>Log In</Button>
+                            <Button>Login</Button>
                         </Link>
                     )}
                 </Column>

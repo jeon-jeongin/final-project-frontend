@@ -1,11 +1,13 @@
 import styled from "styled-components";
 import { FatText } from "../shared";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { gql, useMutation } from "@apollo/client";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan } from "@fortawesome/free-regular-svg-icons";
+import { faEdit } from "@fortawesome/free-solid-svg-icons";
+import { useForm } from "react-hook-form";
 
 function Comment({ id, photoId, isMine, author, payload }) {
     const updateDeleteComment = (cache, result) => {
@@ -35,33 +37,105 @@ function Comment({ id, photoId, isMine, author, payload }) {
     const onDeleteClick = () => {
         deleteCommentMutation();
     };
+
+    const [input, setInput] = useState(false);
+
+    const { register, handleSubmit, setValue, getValues } = useForm();
+
+    const editCommentUpdate = (cache, { data: { editComment } }) => {
+        const { payload } = getValues();
+        setValue("payload", "");
+        cache.writeFragment({
+            id: `Comment:${id}`,
+            fragment: gql`
+                fragment BSName on Comment {
+                    payload
+                }
+                `,
+            data: {
+                payload: payload
+            }
+        })
+        cache.modify({
+            id: cache.identify(Comment),
+            fields: {
+                payload(prev) {
+                    return [...prev, payload]
+                }
+
+            }
+        })
+
+    };
+    const [editCommentMutation, { loading }] = useMutation(
+        EDIT_COMMENT_MUTATION,
+        {
+            update: editCommentUpdate,
+        }
+    );
+
+    const onValid = (data) => {
+        const { payload } = data;
+        if (loading) {
+            return;
+        }
+        editCommentMutation({
+            variables: {
+                id,
+                payload,
+            }
+        })
+    };
+
+    const onEditClick = () => {
+        setInput(input => !input);
+    }
+
     return (
-        <CommentContainers>
-            <CommentContainer>
-                <Link to={`/users/${author}`}>
-                    <FatText>{author}</FatText>
-                </Link>
-                <CommentCaption>
-                    {payload.split(" ").map((word, index) =>
-                        /#[\w]+/.test(word) ? (
-                            <React.Fragment key={index}>
-                                <Link to={`/hashtags/${word}`}>{word}</Link>{" "}
-                            </React.Fragment>
-                        ) : (
-                            <React.Fragment key={index}>{word} </React.Fragment>
-                        )
-                    )}
-                </CommentCaption>
-            </CommentContainer>
-            <CommentContainer>
-                {isMine ? (
-                    <Button onClick={onDeleteClick}>
-                        <FontAwesomeIcon icon={faTrashCan} />
-                    </Button>
-                )
-                    : null}
-            </CommentContainer>
-        </CommentContainers>
+        <>
+            <CommentContainers>
+                <CommentContainer>
+                    <Link to={`/users/${author}`}>
+                        <FatText>{author}</FatText>
+                    </Link>
+                    <CommentCaption>
+                        {payload.split(" ").map((word, index) =>
+                            /#/.test(word) ? (
+
+                                <React.Fragment key={index}>
+                                    <Link to={`/hashtags/${word}`}>{word}</Link>{" "}
+                                </React.Fragment>
+                            ) : (
+                                <React.Fragment key={index}>{word} </React.Fragment>
+                            )
+                        )}
+                    </CommentCaption>
+                </CommentContainer>
+                <CommentContainer>
+                    {isMine ? (
+                        <>
+                            <Button onClick={onEditClick}>
+                                <FontAwesomeIcon icon={faEdit} />
+                            </Button>
+                            <Button onClick={onDeleteClick}>
+                                <FontAwesomeIcon icon={faTrashCan} />
+                            </Button>
+                        </>
+                    )
+                        : null}
+                </CommentContainer>
+            </CommentContainers>
+            <CommentEditContainers>
+                {input ? (<form onSubmit={handleSubmit(onValid)}>
+                    <PostCommentInput
+                        name="payload"
+                        ref={register({ required: true })}
+                        type="text"
+                        placeholder="Edit a comment..."
+                    />
+                </form>) : null}
+            </CommentEditContainers>
+        </>
     );
 }
 
@@ -83,6 +157,16 @@ const DELETE_COMMENT_MUTATION = gql`
   }
 `;
 
+const EDIT_COMMENT_MUTATION = gql`
+  mutation editComment($id: Int!, $payload: String!) {
+    editComment(id: $id, payload: $payload) {
+      ok
+      error
+    }
+  }
+`;
+
+
 const CommentContainers = styled.div`
     display: flex;
     align-items: center;
@@ -90,6 +174,10 @@ const CommentContainers = styled.div`
     margin-bottom: 7px;
 `;
 const CommentContainer = styled.div``;
+
+const CommentEditContainers = styled.div`
+    margin-bottom: 7px;
+`;
 
 const CommentCaption = styled.span`
     margin-left: 10px;
@@ -110,4 +198,11 @@ const Button = styled.button`
         font-size: 15px;
         color: ${(props) => props.theme.fontColor};
     }
+`;
+
+const PostCommentInput = styled.input`
+  width: 100%;
+  &::placeholder {
+    font-size: 12px;
+  }
 `;

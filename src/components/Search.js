@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
 import Input from "./auth/Input";
+import PageTitle from "./PageTitle";
 
 function Search() {
     const { register, handleSubmit } = useForm();
@@ -26,6 +27,7 @@ function Search() {
 
     return (
         <SearchContainer>
+            <PageTitle title="Search" />
             <SearchBox>
                 <form onSubmit={handleSubmit(onSubmitValid)} >
                     <SearchInput

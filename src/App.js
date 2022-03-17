@@ -6,11 +6,14 @@ import { client, darkModeVar, isLoggedInVar } from "./apollo";
 import Layout from "./components/Layout";
 import Search from "./components/Search";
 import routes from "./routes";
+// import EditFeed from "./screens/EditFeed";
+import EditProfile from "./screens/EditProfile";
 import Home from "./screens/Home";
 import Login from "./screens/Login";
-import NotFound from "./screens/NotFound";
+import Rooms from "./screens/Rooms";
 import Profile from "./screens/Profile";
 import SignUp from "./screens/SignUp";
+import UploadFeed from "./screens/UploadFeed";
 import { darkTheme, GlobalStyles, lightTheme } from "./styles";
 
 function App() {
@@ -26,8 +29,11 @@ function App() {
               <Route exact path={routes.home} element={isLoggedIn ? <Layout><Home /></Layout> : <Layout><Login /></Layout>} />
               <Route path={routes.signUp} element={!isLoggedIn ? <Layout><SignUp /></Layout> : null} />
               <Route path={`/users/:username`} element={<Layout><Profile /></Layout>} />
+              <Route path={`/users/:username/editProfile`} element={<Layout><EditProfile /></Layout>} />
               <Route path={`/search`} element={<Layout><Search /></Layout>} />
-              <Route element={<NotFound />} />
+              <Route path={`/uploadFeed`} element={<Layout><UploadFeed /></Layout>} />
+              <Route path={`/rooms`} element={<Layout><Rooms /></Layout>} />
+              {/* <Route path={`/editFeed`} element={<Layout><EditFeed /></Layout>} /> */}
             </Routes>
           </Router>
         </ThemeProvider>
