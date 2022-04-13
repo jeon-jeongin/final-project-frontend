@@ -1,32 +1,25 @@
-import { gql, useMutation, useQuery } from "@apollo/client";
-import { faPaperPlane } from "@fortawesome/free-regular-svg-icons";
+import { gql, useQuery } from "@apollo/client";
+import { faPaperPlane, faPenToSquare } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styled from "styled-components";
+import RoomModal from "../components/message/RoomModal";
+import RoomsUsersList from "../components/message/RoomsUsersList";
 import PageTitle from "../components/PageTitle";
 import { FatLink, FatText } from "../components/shared";
 import { ROOM_FRAGMENT } from "../fragments";
 import useUser from "../hooks/useUser";
-import Room from "./Room";
 
 function Rooms() {
     const { data: meData } = useUser();
     const { data } = useQuery(SEE_ROOMS_QUERY);
 
-    const [notMe, setNotMe] = useState("");
-
-    useEffect(() => {
-        if (data) {
-            if (Object.keys(data?.seeRooms).length !== 0) {
-                setNotMe((data?.seeRooms[0]?.users).find((user) => user.username !== meData?.me?.username))
-            }
-        }
-    }, [data]);
-
-    const [message, setMessage] = useState(false);
-
-    const onMessageClick = () => {
-        setMessage(message => !message);
+    const [modalOn, setModalOn] = useState(false);
+    const openModal = () => {
+        setModalOn(true);
+    }
+    const closeModal = () => {
+        setModalOn(false);
     }
     return (
         <Layout>
@@ -38,37 +31,24 @@ function Rooms() {
                             <Avatar src={meData?.me?.avatar} />
                             <Username>{meData?.me?.username}</Username>
                         </div>
+                        <div>
+                            <RoomAction onClick={openModal}>
+                                <FontAwesomeIcon icon={faPenToSquare} />
+                            </RoomAction>
+                        </div>
+                        {modalOn && <RoomModal closeModal={closeModal} />}
                     </RoomsHeader>
-                    {notMe ?
-                        <RoomsUsers onClick={onMessageClick}>
-                            <div>
-                                <Avatar src={notMe?.avatar} />
-                                <Username>{notMe?.username}</Username>
-                            </div>
-                        </RoomsUsers>
-                        :
-                        <RoomsUsers>
-                            <div>
-                                <Avatar />
-                                <Username />
-                            </div>
-                        </RoomsUsers>
-                    }
+                    {data?.seeRooms.map((room) => (
+                        <RoomsUsersList key={room.id} {...room} />
+                    ))}
                 </RoomsContainer>
                 <RoomsContainer>
-                    {message ?
-                        <>
-                            {data?.seeRooms.map((room) => (
-                                <Room key={room.id} {...room} />
-                            ))}
-                        </>
-                        :
-                        <Container>
-                            <FontAwesomeIcon icon={faPaperPlane} />
-                            <Title>내 메세지</Title>
-                            <Subtitle>친구에게 메시지를 보내보세요.</Subtitle>
-                        </Container>
-                    }
+                    <Container>
+                        <FontAwesomeIcon icon={faPaperPlane} />
+                        <Title>내 메세지</Title>
+                        <Subtitle>친구에게 메시지를 보내보세요.</Subtitle>
+                        <MessageBtn onClick={openModal}>메시지 보내기</MessageBtn>
+                    </Container>
                 </RoomsContainer>
             </RoomsContainers>
         </Layout>
@@ -99,8 +79,9 @@ const RoomsContainers = styled.div`
     justify-content: space-between;
 `;
 
-const RoomsContainer = styled.div`
-`;
+const RoomsContainer = styled.div``;
+
+const RoomAction = styled.div``;
 
 const Avatar = styled.img`
   height: 40px;
@@ -128,32 +109,15 @@ const RoomsHeader = styled.div`
         font-size: 13px;
     }
   svg{
-        font-size: 17px;
+        font-size: 18px;
     }
-`;
-
-const RoomsUsers = styled.div`
-    width: 310px;
-    padding: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    overflow: auto;
-    div{
-        display: flex;
-        align-items: center;
-        font-size: 13px;
-    }
-    &:hover {
-        background-color: ${(props) => props.theme.hoverColor};
-  }
 `;
 
 const Container = styled.div`
     display: flex;
     flex-direction: column;
-    width: 620px;
-    margin-top: 220px;
+    margin-right: 220px;
+    margin-top: 200px;
     svg {
         font-size: 75px;
     }
@@ -171,4 +135,15 @@ const Subtitle = styled(FatLink)`
   font-size: 15px;
   text-align: center;
   margin-top: 15px;
+`;
+
+const MessageBtn = styled.span`
+  background-color: ${(props) => props.theme.accent};
+  border-radius: 4px;
+  width: 60%;
+  padding: 9px;
+  text-align: center;
+  color: white;
+  font-weight: 600;
+  margin: 20px 0px 0px 40px;
 `;

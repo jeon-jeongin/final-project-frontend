@@ -1,10 +1,12 @@
 import { gql, useLazyQuery } from "@apollo/client";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
-import Input from "./auth/Input";
-import PageTitle from "./PageTitle";
+import Input from "../components/auth/Input";
+import PageTitle from "../components/PageTitle";
+import DetailModal from "../components/search/DetailModal";
 
 function Search() {
     const { register, handleSubmit } = useForm();
@@ -16,7 +18,6 @@ function Search() {
     };
 
     const [startQueryFn, { data }] = useLazyQuery(SEARCH_PHOTOS, { onCompleted });
-
     const onSubmitValid = ({ keyword }) => {
         startQueryFn({
             variables: {
@@ -24,6 +25,22 @@ function Search() {
             }
         })
     };
+
+    const [modalOn, setModalOn] = useState(false);
+    const openModal = () => {
+        setModalOn(true);
+    }
+    const closeModal = () => {
+        setModalOn(false);
+    }
+
+    const [searchId, setSearchId] = useState("");
+
+    const onCheckedhandler = (e) => {
+        e.preventDefault();
+        setSearchId(e.target.getAttribute("value"));
+        openModal()
+    }
 
     return (
         <SearchContainer>
@@ -45,10 +62,9 @@ function Search() {
             </SearchBox >
             <Grid>
                 {data?.searchPhotos?.map((photo) => (
-                    <Photo key={photo.id} bg={photo.file}>
-
-                    </Photo>
+                    <Photo key={photo.id} bg={photo.file} onClick={(e) => onCheckedhandler(e)} value={photo.id} />
                 ))}
+                {modalOn && <DetailModal closeModal={closeModal} searchId={searchId} />}
             </Grid>
         </SearchContainer>
 
@@ -65,6 +81,7 @@ const SEARCH_PHOTOS = gql`
         }
     }
 `;
+
 const SearchContainer = styled.div``;
 
 const SearchBox = styled.div`

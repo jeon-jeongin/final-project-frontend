@@ -36,6 +36,7 @@ function Login() {
         if (token) {
             logUserIn(token);
         }
+        window.location.reload();
     };
     const [login, { loading }] = useMutation(LOGIN_MUTATION, {
         onCompleted,

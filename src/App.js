@@ -3,10 +3,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import { client, darkModeVar, isLoggedInVar } from "./apollo";
-import Layout from "./components/Layout";
-import Search from "./components/Search";
 import routes from "./routes";
-// import EditFeed from "./screens/EditFeed";
 import EditProfile from "./screens/EditProfile";
 import Home from "./screens/Home";
 import Login from "./screens/Login";
@@ -15,6 +12,9 @@ import Profile from "./screens/Profile";
 import SignUp from "./screens/SignUp";
 import UploadFeed from "./screens/UploadFeed";
 import { darkTheme, GlobalStyles, lightTheme } from "./styles";
+import Room from "./screens/Room";
+import Search from "./screens/Search";
+import Layout from "./components/Layout";
 
 function App() {
   const isLoggedIn = useReactiveVar(isLoggedInVar);
@@ -33,7 +33,7 @@ function App() {
               <Route path={`/search`} element={<Layout><Search /></Layout>} />
               <Route path={`/uploadFeed`} element={<Layout><UploadFeed /></Layout>} />
               <Route path={`/rooms`} element={<Layout><Rooms /></Layout>} />
-              {/* <Route path={`/editFeed`} element={<Layout><EditFeed /></Layout>} /> */}
+              <Route path={`/rooms/:username`} element={<Layout><Room /></Layout>} />
             </Routes>
           </Router>
         </ThemeProvider>

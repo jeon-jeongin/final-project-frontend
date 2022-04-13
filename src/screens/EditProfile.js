@@ -39,6 +39,7 @@ function EditProfile() {
             });
         }
         navigate(routes.home);
+        window.location.reload();
     };
 
     const [editProfile, { loading }] = useMutation(EDIT_PROFILE_MUTATION, { onCompleted })
