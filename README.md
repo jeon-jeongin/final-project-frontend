@@ -1,10 +1,6 @@
-# Multicampus
-
-## Final-Project-Frontend
+# Multicampus Final-Project-Frontend
 
 **멀티캠퍼스 웹 서비스 풀스택 교육과정**에서 진행한 파이널 프로젝트입니다.
-
-
 
 ### ✨ 소개
 
@@ -33,7 +29,8 @@
 
 ---
 
-| ![스크린샷 2022-04-14 오후 3.55.15](/Users/jeonjeong-in/study/project/final/readmeImg/스크린샷 2022-04-14 오후 3.55.15.png) | ![스크린샷 2022-04-14 오후 3.55.23](/Users/jeonjeong-in/study/project/final/readmeImg/스크린샷 2022-04-14 오후 3.55.23.png) |
+| ![스크린샷 2022-04-14 오후 3 55 15](https://user-images.githubusercontent.com/96180427/163336467-6c23a5a9-a3b4-4f45-9ace-fdea70755828.png)
+ | ![스크린샷 2022-04-14 오후 3 55 23](https://user-images.githubusercontent.com/96180427/163336699-70fe1d3c-e30e-4d76-8d81-5616cc9bc280.png) |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | ![스크린샷 2022-04-14 오후 3.55.43](/Users/jeonjeong-in/study/project/final/readmeImg/스크린샷 2022-04-14 오후 3.55.43.png) | ![스크린샷 2022-04-14 오후 3.55.31](/Users/jeonjeong-in/study/project/final/readmeImg/스크린샷 2022-04-14 오후 3.55.31.png) |
 | ![스크린샷 2022-04-14 오후 3.56.08](/Users/jeonjeong-in/study/project/final/readmeImg/스크린샷 2022-04-14 오후 3.56.08.png) | ![스크린샷 2022-04-14 오후 3.56.22](/Users/jeonjeong-in/study/project/final/readmeImg/스크린샷 2022-04-14 오후 3.56.22.png) |
