@@ -69,7 +69,7 @@
 
 | 채팅                                                         |
 | ------------------------------------------------------------ |
-|<img src="https://user-images.githubusercontent.com/96180427/163339949-1969573b-1277-4a9c-803a-69c18c3af5e6.gif" style="zoom:150%;" /> |
+|<img src="https://user-images.githubusercontent.com/96180427/163339949-1969573b-1277-4a9c-803a-69c18c3af5e6.gif" style="zoom:150%;" width="1200px"/> |
 
 
 
